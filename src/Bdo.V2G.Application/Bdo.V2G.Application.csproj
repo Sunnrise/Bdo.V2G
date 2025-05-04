@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Bdo.V2G</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bdo.V2G.Domain\Bdo.V2G.Domain.csproj" />
+    <ProjectReference Include="..\Bdo.V2G.Application.Contracts\Bdo.V2G.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Stateless" Version="5.17.0" />
+    <PackageReference Include="Volo.Abp.Account.Application" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.Identity.Application" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="8.3.4" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="8.3.4" />
+  </ItemGroup>
+
+</Project>
