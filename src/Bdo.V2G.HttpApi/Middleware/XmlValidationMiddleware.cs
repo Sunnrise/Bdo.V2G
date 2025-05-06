@@ -3,68 +3,52 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 using Bdo.V2G.Utilities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Bdo.V2G.Middleware;
 
 public class XmlValidationMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IDictionary<string, string> _pathToXsdMapping;
     private readonly string _baseSchemaPath;
+    private readonly ILogger<XmlValidationMiddleware> _logger;
 
-    public XmlValidationMiddleware(
-        RequestDelegate next,
-        IWebHostEnvironment env
-    )
+    public XmlValidationMiddleware(RequestDelegate next, IWebHostEnvironment env, ILogger<XmlValidationMiddleware> logger)
     {
         _next = next;
-        _baseSchemaPath = Path.Combine(env.ContentRootPath, "Schemas");
-        _pathToXsdMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "api/charging-session/setup", "V2G_CI_SessionSetupReq.xsd" },
-            { "/api/service-discovery", "V2G_CI_ServiceDiscoveryReq.xsd" },
-            { "/api/payment-details", "V2G_CI_PaymentDetailsReq.xsd" },
-            { "/api/authorization", "V2G_CI_AuthorizationReq.xsd" },
-            { "/api/charge-parameter/discovery", "V2G_CI_ChargeParameterDiscoveryReq.xsd" },
-            { "/api/charging-status", "V2G_CI_ChargingStatusReq.xsd" },
-            { "/api/metering-receipt", "V2G_CI_MeteringReceiptReq.xsd" },
-            { "/api/power/delivery", "V2G_CI_PowerDeliveryReq.xsd" },
-            { "/api/session-stop", "V2G_CI_SessionStopReq.xsd" }
-            
-        };
+        _logger = logger;
+        _baseSchemaPath = Path.Combine(env.ContentRootPath, "schemas");
     }
 
-    public async Task InvokeAsync(
-        HttpContext context
-    )
+    public async Task InvokeAsync(HttpContext context)
     {
         if (context.Request.Method == HttpMethods.Post &&
-            context.Request.ContentType != null &&
-            context.Request.ContentType.Contains("application/xml", StringComparison.OrdinalIgnoreCase))
+            context.Request.ContentType?.Contains("application/xml") == true)
         {
-            if (_pathToXsdMapping.TryGetValue(context.Request.Path.Value ?? "", out var xsdFile))
-            {
-                var fullXsdPath = Path.Combine(_baseSchemaPath, xsdFile);
+            var requestPath = context.Request.Path.Value?.ToLowerInvariant();
 
+            // Ana XSD'yi belirle (örnek olarak MsgDef kullanıyoruz)
+            var mainXsdPath = Path.Combine(_baseSchemaPath, "V2G_CI_MsgDef.xsd");
+
+            try
+            {
                 context.Request.EnableBuffering();
                 using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, leaveOpen: true);
                 var body = await reader.ReadToEndAsync();
                 context.Request.Body.Position = 0;
 
-                try
-                {
-                    Utilities.XmlValidator.ValidateXml(body, fullXsdPath);
-                }
-                catch (Exception ex)
-                {
-                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync($"{{\"error\":\"XML validation failed: {ex.Message}\"}}");
-                    return;
-                }
+                XmlValidator.ValidateXml(body, mainXsdPath);
+            }
+            catch (XmlSchemaValidationException ex)
+            {
+                _logger.LogError(ex, "XML validation failed");
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await context.Response.WriteAsync($"{{\"error\": \"XML validation failed: {ex.Message}\"}}");
+                return;
             }
         }
 

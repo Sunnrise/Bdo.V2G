@@ -1,4 +1,4 @@
-﻿namespace Bdo.V2G.DTOs;
+﻿namespace Bdo.V2G.DTOs.SessionSetup;
 
 public class SessionSetupReqDto
 {

@@ -29,16 +29,11 @@
     <ProjectReference Include="..\Bdo.V2G.EntityFrameworkCore\Bdo.V2G.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Bdo.V2G.HttpApi\Bdo.V2G.HttpApi.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <Compile Remove="Logs\**" />
-    <Content Remove="Logs\**" />
-    <EmbeddedResource Remove="Logs\**" />
-    <None Remove="Logs\**" />
-    <None Remove="schemas\V2G_CI_AuthorizationReq.xsd" />
-    <Content Include="schemas\V2G_CI_AuthorizationReq.xsd">
+    <Content Include="Schemas\**\*.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
 
 </Project>
