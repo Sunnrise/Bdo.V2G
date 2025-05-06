@@ -1,6 +1,7 @@
 ﻿using Bdo.V2G.Services.SessionManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Account;
+using Volo.Abp.AspNetCore.SignalR;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
@@ -19,7 +20,9 @@ namespace Bdo.V2G;
     typeof(AbpPermissionManagementApplicationModule),
     typeof(AbpTenantManagementApplicationModule),
     typeof(AbpFeatureManagementApplicationModule),
-    typeof(AbpSettingManagementApplicationModule)
+    typeof(AbpSettingManagementApplicationModule),
+typeof(AbpAspNetCoreSignalRModule)
+    
     )]
 public class V2GApplicationModule : AbpModule
 {

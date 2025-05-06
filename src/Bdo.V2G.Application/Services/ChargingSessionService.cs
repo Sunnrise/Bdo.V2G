@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Bdo.V2G.DTOs;
+using Bdo.V2G.DTOs.SessionSetup;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
 
